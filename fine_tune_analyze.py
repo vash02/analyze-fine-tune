@@ -53,7 +53,7 @@ def run_lora():
     base_model = AutoModelForCausalLM.from_pretrained(model_name, output_attentions=True)
     base_model.resize_token_embeddings(len(tokenizer))
     model = get_peft_model(base_model, peft_config)
-    return model, "phi1.5-lora"
+    return model, "gpt-neo-lora"
 
 def run_bitfit():
     """Freezes all but bias terms in GPT-Neo."""
@@ -61,11 +61,11 @@ def run_bitfit():
     model.resize_token_embeddings(len(tokenizer))
     for name, param in model.named_parameters():
         param.requires_grad = ("bias" in name)
-    return model, "phi1.5-bitfit"
+    return model, "gpt-neo-bitfit"
 
 def freeze_all_but_last(model, last_layers_to_unfreeze=1):
     """
-    Finds the max transformer.h.X index in phi1.5 style,
+    Finds the max transformer.h.X index in gpt-neo style,
     and only unfreezes that block + lm_head for the last <last_layers_to_unfreeze> blocks.
     """
     max_block_idx = -1
@@ -109,7 +109,7 @@ def run_adapter():
     adapter_model.resize_token_embeddings(len(tokenizer))
     # Freeze everything except last 3 blocks + lm_head
     adapter_model = freeze_all_but_last(adapter_model, last_layers_to_unfreeze=3)
-    return adapter_model, "phi1.5-adapter"
+    return adapter_model, "gpt-neo-adapter"
 
 def fine_tune_and_save(model, label):
     """
